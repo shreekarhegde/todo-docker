@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const logger = require('./logger');
+require('dotenv').config();
 
 module.exports = function (app) {
   mongoose.connect(
-    app.get('mongodb'),
+    process.env.MONGO_URL,
     { useCreateIndex: true, useNewUrlParser: true }
   ).catch(err => {
     logger.error(err);
