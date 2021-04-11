@@ -1,0 +1,36 @@
+# Create image based on the official Node 10 image from dockerhub
+FROM node:15.13.0-alpine
+
+# Create a directory where our app will be placed
+RUN mkdir -p /app
+
+# Change directory so that our commands run inside this new directory
+WORKDIR /app
+
+# Copy dependency definitions
+COPY package*.json /app/
+
+# Install dependecies
+RUN npm install
+
+# Get all the code needed to run the app
+COPY . /app/
+
+# Expose the port the app runs in
+EXPOSE 4200
+
+# Serve the app
+CMD ["npm", "start"]
+
+
+#Using ng serve --host 0.0.0.0 has always worked for me.
+#The reason this is crucial is that without it, the angular process is only listening on the localhost interface inside the container - so even with the docker port mapping, connections from outside the container aren't being received.
+#** Angular Live Development Server is listening on localhost:3000
+#But if you add the parameter --host 0.0.0.0 then the angular process will listen on all interfaces, and the docker port mapping will allow connections from outside the container to reach it.
+#** Angular Live Development Server is listening on 0.0.0.0:3000
+#So, in summary:
+#you don't need the EXPOSE 4200 line in the Dockerfile
+#you do need the port mapping in the docker-compose.yml file
+#you do need the CMD line in the Dockerfile, and it should include the host parameter e.g. CMD ["ng","serve","--host", "0.0.0.0"]
+#you don't need to use docker run
+#you can use docker-compose up, which will pick up the port mappings from the docker-compose.yml file.
