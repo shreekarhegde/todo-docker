@@ -1,0 +1,23 @@
+sudo: required
+services: 
+  - docker
+jobs:
+  include:
+    - stage: Build App
+      script: 
+      - docker build -t shreekarhegde/client:latest ./client
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin && docker push shreekarhegde/client:latest
+      - docker build -t shreekarhegde/api:latest ./api  
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin && docker push shreekarhegde/api:latest
+
+deploy:
+  provider: elasticbeanstalk
+  region: 'ap-south-1'
+  app: 'todo'
+  env: 'Todo-env'
+  bucket_name: 'elasticbeanstalk-ap-south-1-047565902808'
+  bucket_path: 'todo'
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
